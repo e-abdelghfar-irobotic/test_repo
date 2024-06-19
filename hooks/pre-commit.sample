@@ -1,24 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
+LC_ALL=C
 
-# Define branch naming patterns
-patterns=("main" "bugfix/*" "bugfix/*/*" "hotfix/*/*" "dependencies/*" "feature/*" "tests/*" "tests/*/*" "release/*")
+local_branch="$(git rev-parse --abbrev-ref HEAD)"
 
-# Get the name of the branch being pushed
-while read local_ref local_sha remote_ref remote_sha; do
-    branch_name=$(git rev-parse --abbrev-ref "$local_ref")
+valid_branch_regex="^(main|bugfix\/([a-zA-Z0-9_-]+|[0-9]+(\/[a-zA-Z0-9_-]+)*)|hotfix\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|dependencies\/[a-zA-Z0-9_-]+|feature\/[a-zA-Z0-9_-]+|tests\/([a-zA-Z0-9]+|[0-9]+(\/[a-zA-Z0-9_-]+)*)|release\/[0-9]+\.[0-9]+\.[0-9]+(-(beta|rc)[0-9]*)?)$"
 
-    valid=false
-    for pattern in "${patterns[@]}"; do
-        if [[ "$branch_name" == $pattern ]]; then
-            valid=true
-            break
-        fi
-    done
+message="There is something wrong with your branch name. Branch names in this project must adhere to this contract: $valid_branch_regex. Your commit will be rejected. You should rename your branch to a valid name and try again."
 
-    if [ "$valid" = false ]; then
-        echo "Error: Branch name '$branch_name' does not follow the naming convention."
-        exit 1
-    fi
-done
+if [[ ! $local_branch =~ $valid_branch_regex ]]
+then
+    echo "$message"
+    exit 1
+fi
 
 exit 0
