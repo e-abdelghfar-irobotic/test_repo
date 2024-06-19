@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Define branch naming patterns
+patterns=("main" "bugfix/*" "bugfix/*/*" "hotfix/*/*" "dependencies/*" "feature/*" "tests/*" "tests/*/*" "release/*")
+
+# Get the name of the branch being pushed
+while read local_ref local_sha remote_ref remote_sha; do
+    branch_name=$(git rev-parse --abbrev-ref "$local_ref")
+
+    valid=false
+    for pattern in "${patterns[@]}"; do
+        if [[ "$branch_name" == $pattern ]]; then
+            valid=true
+            break
+        fi
+    done
+
+    if [ "$valid" = false ]; then
+        echo "Error: Branch name '$branch_name' does not follow the naming convention."
+        exit 1
+    fi
+done
+
+exit 0
