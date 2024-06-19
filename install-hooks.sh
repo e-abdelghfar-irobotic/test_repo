@@ -1,3 +1,2 @@
 #!/bin/bash
-chmod +x hooks/*
-git config --local core.hooksPath hooks/
+mv .git/hooks/pre-commit.sample .git/hooks/pre-commit
